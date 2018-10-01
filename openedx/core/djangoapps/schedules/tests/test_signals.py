@@ -19,6 +19,8 @@ from xmodule.modulestore.tests.django_utils import SharedModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 from ..models import Schedule
 from ..tests.factories import ScheduleConfigFactory
+import random
+from mock import MagicMock
 
 
 @ddt.ddt
@@ -37,12 +39,16 @@ class CreateScheduleTests(SharedModuleStoreTestCase):
         assert enrollment.schedule.experience.experience_type == experience_type
 
     def assert_schedule_not_created(self):
+        assert isinstance(random.random, MagicMock)
         course = _create_course_run(self_paced=True)
+        assert isinstance(random.random, MagicMock)
         enrollment = CourseEnrollmentFactory(
             course_id=course.id,
             mode=CourseMode.AUDIT,
         )
+        assert isinstance(random.random, MagicMock)
         with pytest.raises(Schedule.DoesNotExist, message="Expecting Schedule to not exist"):
+            assert isinstance(random.random, MagicMock)
             enrollment.schedule
 
     @override_waffle_flag(CREATE_SCHEDULE_WAFFLE_FLAG, True)
@@ -98,7 +104,7 @@ class CreateScheduleTests(SharedModuleStoreTestCase):
 
     @override_waffle_flag(CREATE_SCHEDULE_WAFFLE_FLAG, True)
     @patch('analytics.track')
-    @patch('random.random')
+    @patch('random.random', return_value=0.2)
     @ddt.data(
         (0, True),
         (0.1, True),
@@ -113,13 +119,13 @@ class CreateScheduleTests(SharedModuleStoreTestCase):
         mock_track,
         mock_get_current_site
     ):
-        mock_random.return_value = 0.2
         schedule_config = ScheduleConfigFactory.create(enabled=True, hold_back_ratio=hold_back_ratio)
         mock_get_current_site.return_value = schedule_config.site
         if expect_schedule_created:
             self.assert_schedule_created()
             assert not mock_track.called
         else:
+            assert isinstance(random.random, MagicMock)
             self.assert_schedule_not_created()
             mock_track.assert_called_once()
             assert mock_track.call_args[1].get('event') == 'edx.bi.schedule.suppressed'
