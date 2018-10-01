@@ -38,17 +38,13 @@ class CreateScheduleTests(SharedModuleStoreTestCase):
         assert enrollment.schedule.upgrade_deadline is None
         assert enrollment.schedule.experience.experience_type == experience_type
 
-    def assert_schedule_not_created(self):
-        assert isinstance(random.random, MagicMock)
+    def assert_schedule_not_created(self, is_it_mocked):
         course = _create_course_run(self_paced=True)
-        assert isinstance(random.random, MagicMock)
         enrollment = CourseEnrollmentFactory(
             course_id=course.id,
             mode=CourseMode.AUDIT,
         )
-        assert isinstance(random.random, MagicMock)
         with pytest.raises(Schedule.DoesNotExist, message="Expecting Schedule to not exist"):
-            assert isinstance(random.random, MagicMock)
             enrollment.schedule
 
     @override_waffle_flag(CREATE_SCHEDULE_WAFFLE_FLAG, True)
@@ -121,11 +117,11 @@ class CreateScheduleTests(SharedModuleStoreTestCase):
     ):
         schedule_config = ScheduleConfigFactory.create(enabled=True, hold_back_ratio=hold_back_ratio)
         mock_get_current_site.return_value = schedule_config.site
+        assert isinstance(random.random, MagicMock)
         if expect_schedule_created:
             self.assert_schedule_created()
             assert not mock_track.called
         else:
-            assert isinstance(random.random, MagicMock)
             self.assert_schedule_not_created()
             mock_track.assert_called_once()
             assert mock_track.call_args[1].get('event') == 'edx.bi.schedule.suppressed'
