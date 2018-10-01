@@ -38,7 +38,7 @@ class CreateScheduleTests(SharedModuleStoreTestCase):
         assert enrollment.schedule.upgrade_deadline is None
         assert enrollment.schedule.experience.experience_type == experience_type
 
-    def assert_schedule_not_created(self, is_it_mocked):
+    def assert_schedule_not_created(self):
         course = _create_course_run(self_paced=True)
         enrollment = CourseEnrollmentFactory(
             course_id=course.id,
