@@ -117,6 +117,7 @@ class CreateScheduleTests(SharedModuleStoreTestCase):
     ):
         schedule_config = ScheduleConfigFactory.create(enabled=True, hold_back_ratio=hold_back_ratio)
         mock_get_current_site.return_value = schedule_config.site
+        assert isinstance(mock_random, MagicMock)
         assert isinstance(random.random, MagicMock)
         if expect_schedule_created:
             self.assert_schedule_created()
