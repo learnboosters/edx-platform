@@ -89,6 +89,23 @@ from openedx.features.course_experience import course_home_page_title, COURSE_OU
 
   <script type="text/javascript">
     var $$course_id = "${course.id | n, js_escaped_string}";
+
+
+    function resizeend() {
+        var iframe = document.getElementsByClassName("scorm_object");
+        Array.prototype.forEach.call(iframe, function(el) {
+            var elmnts = el.contentWindow.document.getElementsByClassName("cpMainContainer");
+            if (elmnts.length > 0) {
+                var dd = elmnts[0].children[0]
+                dd.style.top = "";
+            }
+        });              
+    }
+
+    window.onresize = function(event) {
+        setTimeout(resizeend, 200);
+    };
+
   </script>
 
   % if not request.user.is_authenticated:

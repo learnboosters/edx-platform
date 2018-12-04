@@ -1156,6 +1156,12 @@ INSTALLED_APPS = [
 
     # API Documentation
     'rest_framework_swagger',
+
+    # School
+    'school',
+
+    # Degree Tracks
+    'degree_track',
 ]
 
 

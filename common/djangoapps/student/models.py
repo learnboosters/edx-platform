@@ -71,6 +71,8 @@ from util.milestones_helpers import is_entrance_exams_enabled
 from util.model_utils import emit_field_changed_events, get_changed_fields_dict
 from util.query import use_read_replica_if_available
 
+from school.models import School
+
 log = logging.getLogger(__name__)
 AUDIT_LOG = logging.getLogger("audit")
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore  # pylint: disable=invalid-name
@@ -455,6 +457,12 @@ class UserProfile(models.Model):
     allow_certificate = models.BooleanField(default=1)
     bio = models.CharField(blank=True, null=True, max_length=3000, db_index=False)
     profile_image_uploaded_at = models.DateTimeField(null=True, blank=True)
+    school = models.ForeignKey(School, db_index=True, on_delete=models.SET_NULL, null=True, blank=True)
+    level = models.CharField(max_length=255, null=True, blank=True)
+    section = models.CharField(max_length=255, null=True, blank=True)
+    idkit = models.CharField(max_length=255, null=True, blank=True)
+    region = models.CharField(max_length=255, null=True, blank=True)
+    is_coach = models.BooleanField(default=False)
 
     @property
     def has_profile_image(self):
@@ -560,6 +568,9 @@ class UserProfile(models.Model):
         # There are legal implications regarding how we can contact users and what information we can make public
         # based on their age, so we must take the most conservative estimate.
         return year - year_of_birth - 1
+
+    def __str__(self):
+        return (self.school and self.school.name) or "Not assigned"
 
     @classmethod
     def country_cache_key_name(cls, user_id):
@@ -1138,7 +1149,7 @@ class CourseEnrollmentManager(models.Manager):
 
         return is_course_full
 
-    def users_enrolled_in(self, course_id, include_inactive=False):
+    def users_enrolled_in(self, course_id, include_inactive=False, school_id=None):
         """
         Return a queryset of User for every user enrolled in the course.  If
         `include_inactive` is True, returns both active and inactive enrollees
@@ -1149,6 +1160,8 @@ class CourseEnrollmentManager(models.Manager):
         }
         if not include_inactive:
             filter_kwargs['courseenrollment__is_active'] = True
+        if school_id:
+            filter_kwargs['profile__school_id'] = school_id
         return User.objects.filter(**filter_kwargs)
 
     def enrollment_counts(self, course_id):

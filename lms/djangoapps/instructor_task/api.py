@@ -336,26 +336,26 @@ def submit_calculate_problem_responses_csv(request, course_key, problem_location
     return submit_task(request, task_type, task_class, course_key, task_input, task_key)
 
 
-def submit_calculate_grades_csv(request, course_key):
+def submit_calculate_grades_csv(request, course_key, school_id=None):
     """
     AlreadyRunningError is raised if the course's grades are already being updated.
     """
     task_type = 'grade_course'
     task_class = calculate_grades_csv
-    task_input = {}
+    task_input = {'school_id': school_id}
     task_key = ""
 
     return submit_task(request, task_type, task_class, course_key, task_input, task_key)
 
 
-def submit_problem_grade_report(request, course_key):
+def submit_problem_grade_report(request, course_key, school_id=None):
     """
     Submits a task to generate a CSV grade report containing problem
     values.
     """
     task_type = 'grade_problems'
     task_class = calculate_problem_grade_report
-    task_input = {}
+    task_input = {'school_id': school_id}
     task_key = ""
     return submit_task(request, task_type, task_class, course_key, task_input, task_key)
 

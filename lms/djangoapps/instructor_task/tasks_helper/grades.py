@@ -81,6 +81,7 @@ class _CourseGradeReportContext(object):
         )
         self.action_name = action_name
         self.course_id = course_id
+        self.school_id = _task_input.get('school_id')
         self.task_progress = TaskProgress(self.action_name, total=None, start_time=time())
 
     @lazy
@@ -299,7 +300,14 @@ class CourseGradeReport(object):
             args = [iter(iterable)] * chunk_size
             return izip_longest(*args, fillvalue=fillvalue)
 
-        users = CourseEnrollment.objects.users_enrolled_in(context.course_id, include_inactive=True)
+        # users = CourseEnrollment.objects.users_enrolled_in(context.course_id, include_inactive=True, school_id=context.school_id)
+        users = get_user_model().objects.filter(
+            courseenrollment__course_id=context.course_id,
+            courseenrollment__is_active=True,
+        )
+        if context.school_id:
+            TASK_LOG.info(" >>> "+ context.school_id)
+            users = users.filter(profile__school_id=context.school_id)
         users = users.select_related('profile')
         return grouper(users)
 
@@ -465,7 +473,16 @@ class ProblemGradeReport(object):
         start_time = time()
         start_date = datetime.now(UTC)
         status_interval = 100
-        enrolled_students = CourseEnrollment.objects.users_enrolled_in(course_id, include_inactive=True)
+        # enrolled_students = CourseEnrollment.objects.users_enrolled_in(course_id, include_inactive=True)
+        enrolled_students = get_user_model().objects.filter(
+            courseenrollment__course_id=course_id,
+            courseenrollment__is_active=True,
+        )
+        school_id = _task_input.get('school_id')
+        TASK_LOG.info(" >>> "+ school_id)
+        if school_id:
+            enrolled_students = enrolled_students.filter(profile__school_id=school_id)
+
         task_progress = TaskProgress(action_name, enrolled_students.count(), start_time)
 
         # This struct encapsulates both the display names of each static item in the

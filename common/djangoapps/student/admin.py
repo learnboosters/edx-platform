@@ -2,6 +2,7 @@
 from config_models.admin import ConfigurationModelAdmin
 from django import forms
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -27,6 +28,9 @@ from student.models import (
 )
 from student.roles import REGISTERED_ACCESS_ROLES
 from xmodule.modulestore.django import modulestore
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+from school.models import School
 
 User = get_user_model()  # pylint:disable=invalid-name
 
@@ -224,9 +228,45 @@ class UserProfileInline(admin.StackedInline):
     verbose_name_plural = _('User profile')
 
 
-class UserAdmin(BaseUserAdmin):
+class SchoolFilter(SimpleListFilter):
+    title = 'School'
+    parameter_name = 'school'
+
+    def lookups(self, request, model_admin):
+        return [(school.id, school.name) for school in School.objects.all()]
+
+    def queryset(self, request, queryset):
+        return queryset.filter(profile__school__id=self.value())
+
+
+class UserResource(resources.ModelResource):
+
+    class Meta:
+        model = User
+        skip_unchanged = True
+        report_skipped = False
+
+
+class UserAdmin(BaseUserAdmin, ImportExportModelAdmin):
     """ Admin interface for the User model. """
+    resource_class = UserResource
+
     inlines = (UserProfileInline,)
+
+    def is_coach(obj):
+        return (obj.profile and obj.profile.is_coach) or False
+    is_coach.short_description = "ES entrenador"
+    is_coach.boolean = True
+
+    def school_name(obj):
+        return (obj.profile and obj.profile.school and obj.profile.school.name) or "--"
+    school_name.short_description = "School"
+
+    list_display = ('username', 'email', 'first_name', 'last_name', school_name, is_coach)
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', SchoolFilter)
+    list_select_related = (
+        'profile',
+    )
 
     def get_readonly_fields(self, request, obj=None):
         """

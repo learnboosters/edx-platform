@@ -2447,13 +2447,13 @@ def export_ora2_data(request, course_id):
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @require_level('staff')
 @common_exceptions_400
-def calculate_grades_csv(request, course_id):
+def calculate_grades_csv(request, course_id, school_id=None):
     """
     AlreadyRunningError is raised if the course's grades are already being updated.
     """
     report_type = _('grade')
     course_key = CourseKey.from_string(course_id)
-    lms.djangoapps.instructor_task.api.submit_calculate_grades_csv(request, course_key)
+    lms.djangoapps.instructor_task.api.submit_calculate_grades_csv(request, course_key, school_id)
     success_status = SUCCESS_MESSAGE_TEMPLATE.format(report_type=report_type)
 
     return JsonResponse({"status": success_status})
@@ -2465,7 +2465,7 @@ def calculate_grades_csv(request, course_id):
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @require_level('staff')
 @common_exceptions_400
-def problem_grade_report(request, course_id):
+def problem_grade_report(request, course_id, school_id=None):
     """
     Request a CSV showing students' grades for all problems in the
     course.
@@ -2475,7 +2475,7 @@ def problem_grade_report(request, course_id):
     """
     course_key = CourseKey.from_string(course_id)
     report_type = _('problem grade')
-    lms.djangoapps.instructor_task.api.submit_problem_grade_report(request, course_key)
+    lms.djangoapps.instructor_task.api.submit_problem_grade_report(request, course_key, school_id)
     success_status = SUCCESS_MESSAGE_TEMPLATE.format(report_type=report_type)
 
     return JsonResponse({"status": success_status})

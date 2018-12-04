@@ -22,6 +22,7 @@ from openedx.core.djangoapps.lang_pref.api import released_languages
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from util.cache import cache_if_anonymous
 from util.json_request import JsonResponse
+from degree_track.models import DegreeTrack
 
 log = logging.getLogger(__name__)
 
@@ -74,7 +75,9 @@ def index(request):
 
     #  we do not expect this case to be reached in cases where
     #  marketing and edge are enabled
-    return student.views.index(request, user=request.user)
+    # return student.views.index(request, user=request.user)
+    tracks = DegreeTrack.objects.all()
+    return render_to_response('index.html', {'tracks': tracks})
 
 
 @ensure_csrf_cookie

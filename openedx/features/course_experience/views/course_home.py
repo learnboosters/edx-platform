@@ -38,6 +38,7 @@ from .course_sock import CourseSockFragmentView
 from .latest_update import LatestUpdateFragmentView
 from .welcome_message import WelcomeMessageFragmentView
 
+from degree_track.models import CourseObjective
 
 EMPTY_HANDOUTS_HTML = u'<ol></ol>'
 
@@ -199,6 +200,7 @@ class CourseHomeFragmentView(EdxFragmentView):
             'uses_pattern_library': True,
             'upgrade_price': upgrade_price,
             'upgrade_url': upgrade_url,
+            'objectives': CourseObjective.objects.filter(course__course_id=course_key),
         }
         html = render_to_string('course_experience/course-home-fragment.html', context)
         return Fragment(html)

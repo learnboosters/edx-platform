@@ -17,10 +17,78 @@ from openedx.core.djangolib.markup import HTML
 from openedx.features.course_experience import UNIFIED_COURSE_TAB_FLAG, SHOW_REVIEWS_TOOL_FLAG
 from openedx.features.learner_analytics import ENABLE_DASHBOARD_TAB
 from openedx.features.portfolio_project import INCLUDE_PORTFOLIO_UPSELL_MODAL
+from courseware.courses import get_course_about_section
 %>
 
 <%block name="header_extras">
   <link rel="stylesheet" type="text/css" href="${static.url('paragon/static/paragon.min.css')}" />
+<style type="text/css">
+.course-description p {text-align: justify;}
+main.objectives {
+  max-width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(0,0,0,.2);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+main.objectives section {
+  display: none;
+  padding: 20px 0 0;
+  border-top: 1px solid #abc;
+}
+main.objectives input {
+  display: none;
+}
+main.objectives label {
+  display: inline-block;
+  margin: 0 0 -1px;
+  padding: 15px 15px;
+  font-weight: 600;
+  text-align: center;
+  color: #abc;
+  border: 1px solid transparent;
+}
+main.objectives label:before {
+  font-family: fontawesome;
+  font-weight: normal;
+  margin-right: 10px;
+}
+
+main.objectives label:hover {
+  color: #789;
+  cursor: pointer;
+}
+
+main.objectives input:checked + label {
+  color: #01588c;
+  border: 1px solid #abc;
+  border-top: 2px solid #01588c;
+  border-bottom: 1px solid #fff;
+}
+#tab1:checked ~ #content1,
+#tab2:checked ~ #content2,
+#tab3:checked ~ #content3,
+#tab4:checked ~ #content4,
+#tab5:checked ~ #content5,
+#tab6:checked ~ #content6,
+#tab7:checked ~ #content7,
+#tab8:checked ~ #content8,
+#tab9:checked ~ #content9,
+#tab10:checked ~ #content10,
+#tab11:checked ~ #content11,
+#tab12:checked ~ #content12,
+#tab13:checked ~ #content13,
+#tab14:checked ~ #content14,
+#tab15:checked ~ #content15,
+#tab16:checked ~ #content16,
+#tab17:checked ~ #content17,
+#tab18:checked ~ #content18,
+#tab19:checked ~ #content19,
+#tab20:checked ~ #content20 {
+  display: block;
+}
+</style>
+
 </%block>
 
 <%block name="content">
@@ -94,6 +162,31 @@ from openedx.features.portfolio_project import INCLUDE_PORTFOLIO_UPSELL_MODAL
             % if outline_fragment:
                 ${HTML(outline_fragment.body_html())}
             % endif
+        </div>
+        <div class="page-content-sidebar" style="max-width:600px; margin-left:5%;">
+          <div class="course-description" style="margin-bottom: 50px;">
+            <h3><strong>${_("Description")}:</strong></h3>
+            ${HTML(get_course_about_section(request, course, "overview"))}
+          </div>
+          <h3 style="margin-bottom: 1rem;"><strong>Objetivos del Curso</strong></h3>
+
+        <main class="objectives">
+        % for index, objective in enumerate(objectives):
+        <input id="tab${index+1}" type="radio" name="tabs" ${"checked" if index == 0 else "unchecked"}>
+        <label for="tab${index+1}">${"Objetivo {}".format(objective.number)}</label>
+        % endfor
+
+        % for index, objective in enumerate(objectives):
+        <section id="content${index+1}">
+          <h3><strong>${objective.title}</strong></h3>
+          <ul>
+          % for objectivepoint in objective.objectivepoint_set.all():
+          <li>${objectivepoint.point}</li>
+          % endfor
+        </section>
+        % endfor
+        </main>
+
         </div>
         <aside class="page-content-secondary course-sidebar">
             % if has_goal_permission:

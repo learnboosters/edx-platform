@@ -53,6 +53,8 @@ from student import views as student_views
 from student_account import views as student_account_views
 from track import views as track_views
 from util import views as util_views
+from degree_track import views as degree_track_views
+from coach import views as coach_views
 
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     django_autodiscover()
@@ -1081,5 +1083,26 @@ if settings.FEATURES.get('ENABLE_API_DOCS'):
     urlpatterns += [
         url(r'^api-docs/$', get_swagger_view(title='LMS API')),
     ]
+
+urlpatterns += [
+    url(r'degree/tracks/$', degree_track_views.track_list, name='track_list'),
+    url(r'degree/track/about/(?P<track_id>[0-9a-f-]+)/$', degree_track_views.about_track, name='about_track'),
+    url(r'^coach/$', coach_views.dashboard, name='coach_dashboard'),
+    url(
+        r'^coach/reports/{}/$'.format(
+            settings.COURSE_ID_PATTERN,
+        ),
+        coach_views.reports,
+        name='coach_reports',
+    ),
+    url(
+        r'^coach/reports/{}/(?P<student_id>[0-9]+)/$'.format(
+            settings.COURSE_ID_PATTERN,
+        ),
+        coach_views.student_progress,
+        name='coach_student_progress',
+    ),
+]
+
 
 urlpatterns.extend(plugin_urls.get_patterns(plugin_constants.ProjectType.LMS))

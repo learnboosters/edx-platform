@@ -86,7 +86,8 @@ class VerticalBlock(SequenceFields, XModuleFields, StudioEditableBlock, XmlParse
 
             contents.append({
                 'id': six.text_type(child.location),
-                'content': rendered_child.content
+                'content': rendered_child.content,
+                'display_name': child.display_name
             })
 
         fragment.add_content(self.system.render_template('vert_module.html', {

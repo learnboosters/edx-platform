@@ -2316,6 +2316,15 @@ INSTALLED_APPS = [
 
     # API Documentation
     'rest_framework_swagger',
+
+    # School Master
+    'school',
+
+    # Degree Track
+    'degree_track',
+
+    # Import Export
+    'import_export',
 ]
 
 ######################### CSRF #########################################
