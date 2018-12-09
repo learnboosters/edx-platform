@@ -1102,6 +1102,7 @@ urlpatterns += [
         coach_views.student_progress,
         name='coach_student_progress',
     ),
+    url(r'^import/$', coach_views.import_users, name='import_users'),
 ]
 
 

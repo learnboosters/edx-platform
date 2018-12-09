@@ -1312,10 +1312,10 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = None
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
 ### Size of chunks into which asset uploads will be divided
-UPLOAD_CHUNK_SIZE_IN_MB = 10
+UPLOAD_CHUNK_SIZE_IN_MB = 210
 
 ### Max size of asset uploads to GridFS
-MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB = 10
+MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB = 210
 
 # FAQ url to direct users to if they upload
 # a file that exceeds the above size

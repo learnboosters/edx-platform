@@ -145,6 +145,10 @@ main.objectives input:checked + label {
                     </a>
                 % endif
             </div>
+            <a style="padding:10px;" class="course-tool-link" data-analytics-id="edx.bookmarks" href="/courses/course-v1:ibec+CS108+2018_T2/bookmarks/">
+                <span class="icon fa fa-bookmark" aria-hidden="true"></span>
+                Marcadores
+            </a>
         </div>
     </header>
     <div class="page-content">
@@ -163,7 +167,7 @@ main.objectives input:checked + label {
                 ${HTML(outline_fragment.body_html())}
             % endif
         </div>
-        <div class="page-content-sidebar" style="max-width:600px; margin-left:5%;">
+        <div class="page-content-sidebar" style="max-width:60%; margin-left:5%;">
           <div class="course-description" style="margin-bottom: 50px;">
             <h3><strong>${_("Description")}:</strong></h3>
             ${HTML(get_course_about_section(request, course, "overview"))}
@@ -188,76 +192,6 @@ main.objectives input:checked + label {
         </main>
 
         </div>
-        <aside class="page-content-secondary course-sidebar">
-            % if has_goal_permission:
-                <div class="section section-goals ${'' if current_goal else 'hidden'}">
-                    <div class="current-goal-container">
-                        <label class="title title-label hd-6" for="goal">
-                            <h3 class="hd-6">${_("Goal: ")}</h3>
-                        </label>
-                        <h3 class="title hd-6">${_("Goal: ")}</h3>
-                        <div class="goal">
-                            <span class="text">${goal_options[current_goal.goal_key] if current_goal else ""}</span>
-                        </div>
-                        <select class="edit-goal-select" id="goal">
-                            % for goal, goal_text in goal_options.items():
-                                <option value="${goal}" ${"selected" if current_goal and current_goal.goal_key == goal else ""}>${goal_text}</option>
-                            % endfor
-                        </select>
-                        <span class="sr sr-update-response-msg" aria-live="polite"></span>
-                        <span class="response-icon" aria-hidden="true"></span>
-                        <span class="sr">${_("Edit your course goal:")}</span>
-                        <button class="edit-icon">
-                            <span class="sr">${_("Edit your course goal:")}</span>
-                            <span class="fa fa-pencil" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </div>
-            % endif
-            % if course_tools:
-                <div class="section section-tools">
-                    <h3 class="hd-6 section-title">${_("Course Tools")}</h3>
-                    <ul class="list-unstyled">
-                        % for course_tool in course_tools:
-                            <li class="course-tool">
-                                <a class="course-tool-link" data-analytics-id="${course_tool.analytics_id()}" href="${course_tool.url(course_key)}">
-                                    <span class="icon ${course_tool.icon_classes()}" aria-hidden="true"></span>
-                                    ${course_tool.title()}
-                                </a>
-                            </li>
-                        % endfor
-                    </ul>
-                </div>
-            % endif
-            % if upgrade_url and upgrade_price:
-                <div class="section section-upgrade course-home-sidebar-upgrade">
-                    <h3 class="hd hd-6">${_("Pursue a verified certificate")}</h3>
-                        <img src="https://courses.edx.org/static/images/edx-verified-mini-cert.png" alt="">
-                        <div class="upgrade-container">
-                            <p>
-                                <a class="btn-brand btn-upgrade"
-                                   href="${upgrade_url}"
-                                   data-creative="sidebarupsell"
-                                   data-position="sidebar-message">
-                                   ${_("Upgrade ({price})").format(price=upgrade_price)}
-                                </a>
-                            </p>
-                    <p><button class="btn-link btn-small promo-learn-more">${_('Learn More')}</button></p>
-                        </div>
-                </div>
-            % endif
-            % if dates_fragment:
-                <div class="section section-dates">
-                    ${HTML(dates_fragment.body_html())}
-                </div>
-            % endif
-            % if handouts_html:
-                <div class="section section-handouts">
-                    <h3 class="hd-6 section-title">${_("Course Handouts")}</h3>
-                    ${HTML(handouts_html)}
-                </div>
-            % endif
-        </aside>
     </div>
     % if course_sock_fragment:
         ${HTML(course_sock_fragment.body_html())}

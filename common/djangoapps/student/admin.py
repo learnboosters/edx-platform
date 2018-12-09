@@ -28,8 +28,6 @@ from student.models import (
 )
 from student.roles import REGISTERED_ACCESS_ROLES
 from xmodule.modulestore.django import modulestore
-from import_export import resources
-from import_export.admin import ImportExportModelAdmin
 from school.models import School
 
 User = get_user_model()  # pylint:disable=invalid-name
@@ -239,17 +237,8 @@ class SchoolFilter(SimpleListFilter):
         return queryset.filter(profile__school__id=self.value())
 
 
-class UserResource(resources.ModelResource):
-
-    class Meta:
-        model = User
-        skip_unchanged = True
-        report_skipped = False
-
-
-class UserAdmin(BaseUserAdmin, ImportExportModelAdmin):
+class UserAdmin(BaseUserAdmin):
     """ Admin interface for the User model. """
-    resource_class = UserResource
 
     inlines = (UserProfileInline,)
 

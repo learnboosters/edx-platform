@@ -2323,8 +2323,6 @@ INSTALLED_APPS = [
     # Degree Track
     'degree_track',
 
-    # Import Export
-    'import_export',
 ]
 
 ######################### CSRF #########################################

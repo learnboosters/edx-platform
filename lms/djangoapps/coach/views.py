@@ -5,6 +5,8 @@ import logging
 
 from django.http import HttpResponseForbidden
 from django.contrib.auth.models import User
+from django_countries import countries
+from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from opaque_keys.edx.keys import CourseKey
@@ -14,6 +16,7 @@ from openedx.core.djangoapps.content.course_overviews.models import CourseOvervi
 from courseware.courses import get_course_by_id, get_course_with_access
 from lms.djangoapps.grades.course_grade_factory import CourseGradeFactory
 from student.models import UserProfile, CourseEnrollment
+from school.models import School
 from xmodule.modulestore.django import modulestore
 
 log = logging.getLogger(__name__)
@@ -171,3 +174,43 @@ def student_progress(request, course_id, student_id):
         'courseware_summary': courseware_summary,
         'uses_bootstrap': True,
     })
+
+@login_required
+@ensure_csrf_cookie
+@transaction.atomic
+def import_users(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden()
+
+    error = []
+    message = ""
+    if request.method == 'POST':
+        csv_file = request.FILES["csvfile"]
+        file_data = csv_file.read().decode("utf-8")
+        lines = file_data.split("\n")
+        for line_num, line in enumerate(lines):
+            if not line_num:
+                continue
+            fields = line.split(",")
+            try:
+                with transaction.atomic():
+                    user = User.objects.create(username=fields[0], first_name=fields[2], last_name=fields[3],
+                        email=fields[4], is_active=True)
+                    user.set_password(fields[5])
+                    user.save()
+                    school, created = School.objects.get_or_create(name=fields[7])
+                    country = countries.by_name(fields[14])
+                    profile = UserProfile.objects.create(user=user, name=fields[1],
+                        is_coach=fields[6].lower() != 'student', school=school, level=fields[8],
+                        section=fields[9], idkit=fields[10], city=fields[12], region=fields[13],
+                        country=country)
+                    course = CourseOverview.objects.filter(display_name=fields[11])
+                    if course.count():
+                        course_key = course[0].id
+                        CourseEnrollment.enroll(user, course_key)
+            except Exception as e:
+                log.info(str(e))
+                error.append("Line number: "+ str(line_num+1) + " > " + line)
+        message = "Data import success!" if not error else "Could not import data!"
+
+    return render_to_response('coach/import_users.html', {'message': message, 'error': error})
